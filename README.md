@@ -1,5 +1,9 @@
 <p align="center">
-  <strong>KLLAPP Desktop</strong><br/>
+  <img src="resources/kllapp-logo.svg" alt="KLLAPP" height="32" /><br/>
+  <sub><strong>Desktop</strong></sub>
+</p>
+
+<p align="center">
   Standalone desktop app — works offline or connected to kllapp.com.
 </p>
 
