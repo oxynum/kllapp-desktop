@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+kllapp/node_modules/
+
+# Build output
+dist-electron/
+release/
+kllapp/.next/
+
+# Cloned source (re-created by setup script)
+kllapp/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Secrets
+*.key
+*.pem
+*.p12
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# PGlite data (dev)
+pgdata/

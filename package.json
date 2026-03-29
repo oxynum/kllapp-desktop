@@ -1,0 +1,40 @@
+{
+  "name": "kllapp-desktop",
+  "version": "1.0.0",
+  "description": "KLLAPP Desktop — Standalone offline version with Electron + PGlite",
+  "main": "dist-electron/main.js",
+  "author": "Oxynum <contact@oxynum.fr>",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/oxynum/kllapp-desktop",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oxynum/kllapp-desktop.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "npm run build:electron && concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "dev:next": "cd kllapp && next dev --port 3456",
+    "dev:electron": "electron dist-electron/main.js",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:next": "cd kllapp && next build",
+    "build:desktop": "npm run build:electron && npm run build:next && npm run build:copy && electron-builder",
+    "build:copy": "cd kllapp && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public",
+    "start": "electron dist-electron/main.js",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.4.1",
+    "drizzle-orm": "^0.45.2",
+    "get-port-please": "^3.1.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^35.2.0",
+    "electron-builder": "^26.0.12",
+    "electron-updater": "^6.6.2",
+    "typescript": "^5.8.3"
+  }
+}
