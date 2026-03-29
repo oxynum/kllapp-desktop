@@ -1,8 +1,8 @@
 /**
  * Middleware patch for KLLAPP Desktop.
  *
- * Replaces `src/middleware.ts` in the kllapp source.
- * No auth checks (single-user desktop mode) — just locale detection.
+ * - Redirects to /desktop-setup if no config exists
+ * - Locale detection (no auth checks — single-user mode)
  *
  * USAGE: This file is copied over `kllapp/src/middleware.ts` by the setup script.
  */
@@ -18,9 +18,34 @@ const defaultLocale: Locale = "fr";
 export default function middleware(req: NextRequest) {
   const { nextUrl } = req;
 
-  // Skip static assets
-  if (nextUrl.pathname.startsWith("/_next") || nextUrl.pathname.startsWith("/api")) {
+  // Skip static assets and API routes
+  if (
+    nextUrl.pathname.startsWith("/_next") ||
+    nextUrl.pathname.startsWith("/api") ||
+    nextUrl.pathname.startsWith("/favicon")
+  ) {
     return NextResponse.next();
+  }
+
+  // Check if desktop config exists (skip for setup page itself)
+  if (!nextUrl.pathname.startsWith("/desktop-setup")) {
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const os = require("os");
+      const configDir = process.platform === "darwin"
+        ? path.join(os.homedir(), "Library", "Application Support", "KLLAPP")
+        : process.platform === "win32"
+          ? path.join(process.env.APPDATA ?? os.homedir(), "KLLAPP")
+          : path.join(os.homedir(), ".config", "KLLAPP");
+      const configPath = path.join(configDir, "config.json");
+
+      if (!fs.existsSync(configPath)) {
+        return NextResponse.redirect(new URL("/desktop-setup", nextUrl));
+      }
+    } catch {
+      // If fs fails, let it through
+    }
   }
 
   // Locale detection: cookie > Accept-Language > default
@@ -55,7 +80,7 @@ export default function middleware(req: NextRequest) {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
-      secure: false, // Desktop is always localhost
+      secure: false,
     });
     return response;
   }
