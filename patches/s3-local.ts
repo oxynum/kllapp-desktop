@@ -1,5 +1,5 @@
 /**
- * Local file storage patch for KLLAPP Desktop.
+ * Local file storage patch for kllapp Desktop.
  *
  * Replaces `src/lib/s3.ts` in the kllapp source.
  * Files are stored on disk in the user's data directory instead of S3/MinIO.

@@ -1,5 +1,5 @@
 /**
- * Initialize PGlite database for KLLAPP Desktop.
+ * Initialize PGlite database for kllapp Desktop.
  * Creates schema + seeds default user and organization.
  *
  * Run: node scripts/init-db.mjs
@@ -17,14 +17,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const dataDir = process.env.PGLITE_DATA_DIR ?? path.join(
   process.platform === "darwin"
-    ? path.join(os.homedir(), "Library", "Application Support", "KLLAPP")
+    ? path.join(os.homedir(), "Library", "Application Support", "kllapp")
     : process.platform === "win32"
-      ? path.join(process.env.APPDATA ?? os.homedir(), "KLLAPP")
-      : path.join(os.homedir(), ".config", "KLLAPP"),
+      ? path.join(process.env.APPDATA ?? os.homedir(), "kllapp")
+      : path.join(os.homedir(), ".config", "kllapp"),
   "pgdata"
 );
 
-console.log(`[KLLAPP] PGlite data dir: ${dataDir}`);
+console.log(`[kllapp] PGlite data dir: ${dataDir}`);
 fs.mkdirSync(dataDir, { recursive: true });
 
 const client = new PGlite(dataDir);
@@ -32,17 +32,17 @@ const db = drizzle(client);
 
 // Run migrations
 const migrationsFolder = path.join(__dirname, "..", "kllapp", "drizzle");
-console.log(`[KLLAPP] Migrations from: ${migrationsFolder}`);
+console.log(`[kllapp] Migrations from: ${migrationsFolder}`);
 
 await migrate(db, { migrationsFolder });
-console.log("[KLLAPP] Migrations applied.");
+console.log("[kllapp] Migrations applied.");
 
 // Check if user exists
 const result = await client.query("SELECT COUNT(*) as count FROM users");
 const userCount = parseInt(result.rows[0]?.count ?? "0", 10);
 
 if (userCount === 0) {
-  console.log("[KLLAPP] Seeding default user and organization...");
+  console.log("[kllapp] Seeding default user and organization...");
 
   // Create organization
   await client.query(
@@ -79,11 +79,11 @@ if (userCount === 0) {
     [appUserId, orgId]
   );
 
-  console.log("[KLLAPP] Default user: Admin (admin@localhost)");
-  console.log(`[KLLAPP] Organization: Mon Organisation (${orgId})`);
+  console.log("[kllapp] Default user: Admin (admin@localhost)");
+  console.log(`[kllapp] Organization: Mon Organisation (${orgId})`);
 } else {
-  console.log(`[KLLAPP] Database already has ${userCount} user(s), skipping seed.`);
+  console.log(`[kllapp] Database already has ${userCount} user(s), skipping seed.`);
 }
 
 await client.close();
-console.log("[KLLAPP] Database ready!");
+console.log("[kllapp] Database ready!");

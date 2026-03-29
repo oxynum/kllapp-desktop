@@ -16,11 +16,11 @@ interface DesktopConfig {
 
 function getConfigDir(): string {
   if (process.platform === "darwin") {
-    return path.join(os.homedir(), "Library", "Application Support", "KLLAPP");
+    return path.join(os.homedir(), "Library", "Application Support", "kllapp");
   } else if (process.platform === "win32") {
-    return path.join(process.env.APPDATA ?? os.homedir(), "KLLAPP");
+    return path.join(process.env.APPDATA ?? os.homedir(), "kllapp");
   }
-  return path.join(os.homedir(), ".config", "KLLAPP");
+  return path.join(os.homedir(), ".config", "kllapp");
 }
 
 function getConfigPath(): string {
@@ -141,7 +141,7 @@ async function createWindow(url: string, isRemote: boolean = false) {
     height: 900,
     minWidth: 1024,
     minHeight: 700,
-    title: "KLLAPP",
+    title: "kllapp",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 16 },
     webPreferences: {
@@ -187,7 +187,7 @@ async function createWindow(url: string, isRemote: boolean = false) {
   // Listen for mode switch from injected button
   mainWindow.webContents.on("console-message", (_e, _level, message) => {
     if (message === "__kllapp_switch_offline__") {
-      console.log("[KLLAPP] Switching to offline mode...");
+      console.log("[kllapp] Switching to offline mode...");
       deleteConfig();
       mainWindow?.loadURL(`http://localhost:${localPort}/desktop-setup`);
     }
@@ -221,7 +221,7 @@ function handleRedirect(navUrl: string) {
     if (parsed.pathname === "/desktop-redirect") {
       const remoteUrl = parsed.searchParams.get("url");
       if (remoteUrl && mainWindow) {
-        console.log(`[KLLAPP] Loading remote: ${remoteUrl}`);
+        console.log(`[kllapp] Loading remote: ${remoteUrl}`);
         // Re-create window in remote mode
         const win = mainWindow;
         win.loadURL(remoteUrl);
@@ -247,28 +247,28 @@ ipcMain.handle("config:switch-offline", async () => {
 
 app.whenReady().then(async () => {
   try {
-    app.setName("KLLAPP");
+    app.setName("kllapp");
 
     if (!isDev) {
-      console.log("[KLLAPP] Initializing database...");
+      console.log("[kllapp] Initializing database...");
       await initDatabase();
-      console.log("[KLLAPP] Database ready.");
+      console.log("[kllapp] Database ready.");
     }
 
-    console.log("[KLLAPP] Starting Next.js server...");
+    console.log("[kllapp] Starting Next.js server...");
     localPort = await startNextServer();
-    console.log(`[KLLAPP] Next.js ready on port ${localPort}`);
+    console.log(`[kllapp] Next.js ready on port ${localPort}`);
 
     const config = readConfig();
 
     if (config?.mode === "remote" && config.serverUrl) {
-      console.log(`[KLLAPP] Remote mode → ${config.serverUrl}`);
+      console.log(`[kllapp] Remote mode → ${config.serverUrl}`);
       await createWindow(config.serverUrl, true);
     } else {
       await createWindow(`http://localhost:${localPort}`);
     }
   } catch (error) {
-    console.error("[KLLAPP] Fatal startup error:", error);
+    console.error("[kllapp] Fatal startup error:", error);
     app.quit();
   }
 });

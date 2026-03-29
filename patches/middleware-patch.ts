@@ -1,5 +1,5 @@
 /**
- * Middleware patch for KLLAPP Desktop.
+ * Middleware patch for kllapp Desktop.
  *
  * - Redirects to /desktop-setup if no config exists
  * - Locale detection (no auth checks — single-user mode)
@@ -34,10 +34,10 @@ export default function middleware(req: NextRequest) {
       const path = require("path");
       const os = require("os");
       const configDir = process.platform === "darwin"
-        ? path.join(os.homedir(), "Library", "Application Support", "KLLAPP")
+        ? path.join(os.homedir(), "Library", "Application Support", "kllapp")
         : process.platform === "win32"
-          ? path.join(process.env.APPDATA ?? os.homedir(), "KLLAPP")
-          : path.join(os.homedir(), ".config", "KLLAPP");
+          ? path.join(process.env.APPDATA ?? os.homedir(), "kllapp")
+          : path.join(os.homedir(), ".config", "kllapp");
       const configPath = path.join(configDir, "config.json");
 
       if (!fs.existsSync(configPath)) {

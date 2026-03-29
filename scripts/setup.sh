@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================================
-# KLLAPP Desktop — Setup Script
+# kllapp Desktop — Setup Script
 #
 # 1. Clones the kllapp web repo
 # 2. Installs dependencies
@@ -15,7 +15,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 KLLAPP_DIR="$ROOT_DIR/kllapp"
 
 echo "╔═══════════════════════════════════════════╗"
-echo "║     KLLAPP Desktop — Setup                ║"
+echo "║     kllapp Desktop — Setup                ║"
 echo "╚═══════════════════════════════════════════╝"
 
 # ---- Step 1: Clone kllapp ----

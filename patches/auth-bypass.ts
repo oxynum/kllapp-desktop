@@ -1,5 +1,5 @@
 /**
- * Authentication bypass for KLLAPP Desktop.
+ * Authentication bypass for kllapp Desktop.
  *
  * Two modes:
  *   - KLLAPP_USER_EMAIL set → find that user in the database (remote mode)
@@ -55,7 +55,7 @@ export async function auth(): Promise<DesktopSession | null> {
       : await query.limit(1);
 
     if (!appUser) {
-      console.error("[KLLAPP Desktop] No user found" + (userEmail ? ` for email: ${userEmail}` : ""));
+      console.error("[kllapp Desktop] No user found" + (userEmail ? ` for email: ${userEmail}` : ""));
       return null;
     }
 
@@ -94,7 +94,7 @@ export async function auth(): Promise<DesktopSession | null> {
       expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
     };
   } catch (error) {
-    console.error("[KLLAPP Desktop] Auth error:", error);
+    console.error("[kllapp Desktop] Auth error:", error);
     return null;
   }
 }

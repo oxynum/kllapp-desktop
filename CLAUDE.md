@@ -1,8 +1,8 @@
-# KLLAPP Desktop — AI Assistant Guide
+# kllapp Desktop — AI Assistant Guide
 
 ## Project
 
-KLLAPP Desktop wraps the KLLAPP web app in Electron with two modes:
+kllapp Desktop wraps the kllapp web app in Electron with two modes:
 - **Offline**: PGlite (PostgreSQL WASM) embedded database, no internet needed
 - **Online**: loads kllapp.com directly, full auth via Google/magic link
 
@@ -57,7 +57,7 @@ npm run dev           # Starts Electron + Next.js dev server
 
 ### Mode switching
 
-- Config stored in `~/Library/Application Support/KLLAPP/config.json`
+- Config stored in `~/Library/Application Support/kllapp/config.json`
 - **Offline → Online**: "Go online" button in safe zone → `/desktop-setup` → kllapp.com
 - **Online → Offline**: "Go offline" button injected by Electron → deletes config → `/desktop-setup`
 - First launch with no config → redirected to `/desktop-setup`

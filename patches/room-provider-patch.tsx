@@ -1,5 +1,5 @@
 /**
- * Room provider patch for KLLAPP Desktop.
+ * Room provider patch for kllapp Desktop.
  *
  * Replaces `src/components/sheet/room-provider.tsx` in the kllapp source.
  * No Liveblocks room — just renders children directly.

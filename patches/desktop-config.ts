@@ -20,11 +20,11 @@ export interface DesktopConfig {
 
 function getConfigDir(): string {
   if (process.platform === "darwin") {
-    return path.join(os.homedir(), "Library", "Application Support", "KLLAPP");
+    return path.join(os.homedir(), "Library", "Application Support", "kllapp");
   } else if (process.platform === "win32") {
-    return path.join(process.env.APPDATA ?? os.homedir(), "KLLAPP");
+    return path.join(process.env.APPDATA ?? os.homedir(), "kllapp");
   }
-  return path.join(os.homedir(), ".config", "KLLAPP");
+  return path.join(os.homedir(), ".config", "kllapp");
 }
 
 function getConfigPath(): string {

@@ -1,5 +1,5 @@
 appId: fr.oxynum.kllapp
-productName: KLLAPP
+productName: kllapp
 copyright: Copyright (c) 2026 Oxynum
 
 asar: true
@@ -31,6 +31,7 @@ mac:
   icon: resources/icon.icns
   hardenedRuntime: true
   gatekeeperAssess: false
+  notarize: true
 
 win:
   target:

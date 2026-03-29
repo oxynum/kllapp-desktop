@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================================
-# KLLAPP Desktop — Build Script
+# kllapp Desktop — Build Script
 #
 # Builds the Next.js app + Electron wrapper for distribution.
 # Output: release/ directory with platform-specific installers.
@@ -13,7 +13,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 KLLAPP_DIR="$ROOT_DIR/kllapp"
 
 echo "╔═══════════════════════════════════════════╗"
-echo "║     KLLAPP Desktop — Build                ║"
+echo "║     kllapp Desktop — Build                ║"
 echo "╚═══════════════════════════════════════════╝"
 
 # ---- Step 1: Build Electron main process ----

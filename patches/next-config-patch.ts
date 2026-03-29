@@ -1,5 +1,5 @@
 /**
- * Next.js config patch for KLLAPP Desktop.
+ * Next.js config patch for kllapp Desktop.
  *
  * Replaces `next.config.ts` in the kllapp source.
  * Adds PGlite to serverExternalPackages, removes postgres.

@@ -1,5 +1,5 @@
 /**
- * Liveblocks mock for KLLAPP Desktop.
+ * Liveblocks mock for kllapp Desktop.
  *
  * In offline single-user mode, there's no real-time collaboration.
  * All hooks return safe no-op values.

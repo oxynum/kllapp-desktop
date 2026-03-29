@@ -1,5 +1,5 @@
 /**
- * Providers patch for KLLAPP Desktop.
+ * Providers patch for kllapp Desktop.
  *
  * Replaces `src/components/providers.tsx` in the kllapp source.
  * Keeps SessionProvider (needed by useSession in sidebar) but removes LiveblocksProvider.

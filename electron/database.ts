@@ -15,7 +15,7 @@ export async function initDatabase(): Promise<void> {
   const { PGlite } = await import("@electric-sql/pglite");
 
   const dataDir = path.join(app.getPath("userData"), "pgdata");
-  console.log(`[KLLAPP] PGlite data directory: ${dataDir}`);
+  console.log(`[kllapp] PGlite data directory: ${dataDir}`);
 
   const client = new PGlite(dataDir);
 
@@ -50,9 +50,9 @@ async function runMigrations(client: unknown): Promise<void> {
     );
 
     await migrate(db, { migrationsFolder: migrationsPath });
-    console.log("[KLLAPP] Migrations applied successfully.");
+    console.log("[kllapp] Migrations applied successfully.");
   } catch (error) {
-    console.error("[KLLAPP] Migration error:", error);
+    console.error("[kllapp] Migration error:", error);
     throw error;
   }
 }
@@ -73,7 +73,7 @@ export async function seedDesktopUser(): Promise<void> {
   const count = parseInt(result.rows[0]?.count ?? "0", 10);
 
   if (count === 0) {
-    console.log("[KLLAPP] First launch — creating default user and organization...");
+    console.log("[kllapp] First launch — creating default user and organization...");
 
     // Create default organization
     await db.execute(
@@ -117,7 +117,7 @@ export async function seedDesktopUser(): Promise<void> {
       }
     }
 
-    console.log("[KLLAPP] Default user created: admin@localhost");
+    console.log("[kllapp] Default user created: admin@localhost");
   }
 }
 
@@ -125,9 +125,9 @@ export async function closeDatabase(): Promise<void> {
   if (pgliteInstance) {
     try {
       await (pgliteInstance as { close(): Promise<void> }).close();
-      console.log("[KLLAPP] Database closed.");
+      console.log("[kllapp] Database closed.");
     } catch (error) {
-      console.error("[KLLAPP] Error closing database:", error);
+      console.error("[kllapp] Error closing database:", error);
     }
   }
 }

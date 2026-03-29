@@ -1,5 +1,5 @@
 /**
- * Database adapter for KLLAPP Desktop (local mode only).
+ * Database adapter for kllapp Desktop (local mode only).
  *
  * In remote mode, Electron loads kllapp.com directly — this file is not used.
  * In local mode, this uses PGlite (PostgreSQL WASM) as embedded database.
@@ -25,10 +25,10 @@ function getClient(): PGlite {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const path = require("path");
   const defaultDir = process.platform === "darwin"
-    ? path.join(os.homedir(), "Library", "Application Support", "KLLAPP", "pgdata")
+    ? path.join(os.homedir(), "Library", "Application Support", "kllapp", "pgdata")
     : process.platform === "win32"
-      ? path.join(process.env.APPDATA ?? os.homedir(), "KLLAPP", "pgdata")
-      : path.join(os.homedir(), ".config", "KLLAPP", "pgdata");
+      ? path.join(process.env.APPDATA ?? os.homedir(), "kllapp", "pgdata")
+      : path.join(os.homedir(), ".config", "kllapp", "pgdata");
   const dataDir = process.env.PGLITE_DATA_DIR ?? defaultDir;
   return new PGlite(dataDir);
 }

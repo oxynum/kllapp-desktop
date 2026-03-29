@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="resources/kllapp-logo.svg" alt="KLLAPP" height="32" /><br/>
+  <img src="resources/kllapp-logo.svg" alt="kllapp" height="32" /><br/>
   <sub><strong>Desktop</strong></sub>
 </p>
 
@@ -15,14 +15,14 @@
 </p>
 
 <p align="center">
-  <img src="resources/kllapp-desktop-preview.png" alt="KLLAPP Desktop" width="900" />
+  <img src="resources/kllapp-desktop-preview.png" alt="kllapp Desktop" width="900" />
 </p>
 
 ---
 
 ## What is this?
 
-KLLAPP Desktop wraps [KLLAPP](https://github.com/oxynum/kllapp) in an Electron shell with two modes:
+kllapp Desktop wraps [kllapp](https://github.com/oxynum/kllapp) in an Electron shell with two modes:
 
 - **Offline mode** — Embedded PGlite database (PostgreSQL WASM). No server, no Docker, no cloud account. All data stays on your machine.
 - **Online mode** — Opens kllapp.com directly in the desktop app. Sign in with Google or magic link, access your organization and data as usual.
@@ -72,9 +72,9 @@ npm run dev
 npm run build:desktop
 
 # Output in release/
-# - macOS: KLLAPP-1.0.0.dmg
-# - Windows: KLLAPP-Setup-1.0.0.exe
-# - Linux: KLLAPP-1.0.0.AppImage
+# - macOS: kllapp-1.0.0.dmg
+# - Windows: kllapp-Setup-1.0.0.exe
+# - Linux: kllapp-1.0.0.AppImage
 ```
 
 ## Architecture
@@ -109,7 +109,7 @@ kllapp-desktop/
 
 **Offline mode:**
 - Next.js runs locally inside Electron with PGlite (PostgreSQL WASM)
-- Data stored in `~/Library/Application Support/KLLAPP/pgdata/`
+- Data stored in `~/Library/Application Support/kllapp/pgdata/`
 - No internet connection needed
 
 **Online mode:**
@@ -133,9 +133,9 @@ Re-run `npm run setup` to pull the latest features from the web version.
 
 | OS | Location |
 |---|---|
-| macOS | `~/Library/Application Support/KLLAPP/` |
-| Windows | `%APPDATA%/KLLAPP/` |
-| Linux | `~/.config/KLLAPP/` |
+| macOS | `~/Library/Application Support/kllapp/` |
+| Windows | `%APPDATA%/kllapp/` |
+| Linux | `~/.config/kllapp/` |
 
 - `config.json` — Mode selection (local/remote)
 - `pgdata/` — PGlite database files
@@ -153,7 +153,7 @@ In online mode, the AI assistant uses the server-side key from kllapp.com.
 
 ## License
 
-Same as [KLLAPP](https://github.com/oxynum/kllapp/blob/main/LICENSE) — Sustainable Use License.
+Same as [kllapp](https://github.com/oxynum/kllapp/blob/main/LICENSE) — Sustainable Use License.
 
 ---
 
