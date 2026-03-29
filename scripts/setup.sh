@@ -75,6 +75,49 @@ echo "  ✓ Middleware → locale only"
 cp "$ROOT_DIR/patches/next-config-patch.ts" "$KLLAPP_DIR/next.config.ts"
 echo "  ✓ next.config.ts → PGlite external"
 
+# Desktop config module
+cp "$ROOT_DIR/patches/desktop-config.ts" "$KLLAPP_DIR/src/lib/desktop-config.ts"
+echo "  ✓ Desktop config module"
+
+# Desktop setup page + actions
+mkdir -p "$KLLAPP_DIR/src/app/(auth)/desktop-setup"
+cp "$ROOT_DIR/patches/desktop-setup-page.tsx" "$KLLAPP_DIR/src/app/(auth)/desktop-setup/page.tsx"
+cp "$ROOT_DIR/patches/desktop-setup-actions.ts" "$KLLAPP_DIR/src/app/(auth)/desktop-setup/actions.ts"
+echo "  ✓ Desktop setup page (offline/online)"
+
+# Desktop redirect page (for Electron navigation to remote)
+mkdir -p "$KLLAPP_DIR/src/app/(auth)/desktop-redirect"
+cp "$ROOT_DIR/patches/desktop-redirect-page.tsx" "$KLLAPP_DIR/src/app/(auth)/desktop-redirect/page.tsx"
+echo "  ✓ Desktop redirect page"
+
+# Go online button (in dashboard safe zone)
+cp "$ROOT_DIR/patches/go-online-button.tsx" "$KLLAPP_DIR/src/components/ui/go-online-button.tsx"
+echo "  ✓ Go online button"
+
+# Dashboard layout: add safe zone + go online button
+cp "$ROOT_DIR/patches/dashboard-layout-patch.tsx" "$KLLAPP_DIR/src/app/(dashboard)/layout.tsx"
+echo "  ✓ Dashboard layout → safe zone + mode switch"
+
+# Dynamic client sheet (SSR-safe wrapper for glide-data-grid)
+mkdir -p "$KLLAPP_DIR/src/components/sheet"
+cat > "$KLLAPP_DIR/src/components/sheet/dynamic-client-sheet.tsx" << 'DYNAMIC'
+"use client";
+
+import dynamic from "next/dynamic";
+import type { ComponentProps } from "react";
+import type { ClientSheet as ClientSheetType } from "./client-sheet";
+
+const ClientSheet = dynamic(
+  () => import("./client-sheet").then((m) => m.ClientSheet),
+  { ssr: false }
+);
+
+export function DynamicClientSheet(props: ComponentProps<typeof ClientSheetType>) {
+  return <ClientSheet {...props} />;
+}
+DYNAMIC
+echo "  ✓ Dynamic client sheet (SSR-safe)"
+
 # ---- Step 4: Patch Liveblocks imports in data-grid ----
 echo ""
 echo "→ Patching Liveblocks imports in source files..."
@@ -106,6 +149,15 @@ done
 # Copy the Liveblocks mock into kllapp/src/lib/
 cp "$ROOT_DIR/patches/liveblocks-mock.ts" "$KLLAPP_DIR/src/lib/liveblocks-mock.ts"
 echo "  ✓ Liveblocks mock installed at src/lib/liveblocks-mock.ts"
+
+# ---- Step 5: Patch dashboard page to use DynamicClientSheet (SSR-safe) ----
+echo ""
+echo "→ Patching dashboard page for SSR-safe grid..."
+sed -i.bak 's|import { ClientSheet } from "@/components/sheet/client-sheet";|import { DynamicClientSheet } from "@/components/sheet/dynamic-client-sheet";|g' "$KLLAPP_DIR/src/app/(dashboard)/page.tsx"
+sed -i.bak 's|<ClientSheet|<DynamicClientSheet|g' "$KLLAPP_DIR/src/app/(dashboard)/page.tsx"
+sed -i.bak 's|</ClientSheet>|</DynamicClientSheet>|g' "$KLLAPP_DIR/src/app/(dashboard)/page.tsx"
+rm -f "$KLLAPP_DIR/src/app/(dashboard)/page.tsx.bak"
+echo "  ✓ Dashboard page → DynamicClientSheet (no SSR)"
 
 # ---- Step 5: Create .env for desktop ----
 echo ""
