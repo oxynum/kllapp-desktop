@@ -1,6 +1,6 @@
 <p align="center">
   <strong>KLLAPP Desktop</strong><br/>
-  Standalone offline version — runs on Windows, Mac, and Linux without a server.
+  Standalone desktop app — works offline or connected to your KLLAPP server.
 </p>
 
 <p align="center">
@@ -10,22 +10,26 @@
   <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen" alt="Node" />
 </p>
 
+<p align="center">
+  <img src="resources/kllapp-desktop-preview.png" alt="KLLAPP Desktop" width="900" />
+</p>
+
 ---
 
 ## What is this?
 
-KLLAPP Desktop wraps [KLLAPP](https://github.com/oxynum/kllapp) (the web-based resource planning platform) in an Electron shell with an embedded PostgreSQL database (PGlite). No server, no Docker, no cloud account needed.
+KLLAPP Desktop wraps [KLLAPP](https://github.com/oxynum/kllapp) (the web-based resource planning platform) in an Electron shell. It works in two modes:
 
-**All your data stays on your machine.**
+- **Offline mode** — Embedded PGlite database (PostgreSQL WASM). No server, no Docker, no cloud account. All data stays on your machine.
+- **Remote mode** — Connects to your existing KLLAPP PostgreSQL database. Access your organization's data from a native desktop app.
 
-| | Web version | Desktop version |
-|---|---|---|
-| Database | PostgreSQL server | PGlite (embedded) |
-| Auth | Google OAuth + Magic Link | Auto-login (single user) |
-| Real-time | Liveblocks collaboration | Single user (no sync) |
-| File storage | S3 / MinIO | Local filesystem |
-| AI assistant | Anthropic API | Optional (bring your key) |
-| Deployment | Docker / Railway / Vercel | Native app installer |
+| | Web version | Desktop (offline) | Desktop (remote) |
+|---|---|---|---|
+| Database | PostgreSQL server | PGlite (embedded) | Your PostgreSQL server |
+| Auth | Google OAuth + Magic Link | Auto-login | Auto-login (your account) |
+| Real-time | Liveblocks collaboration | Single user | Single user |
+| File storage | S3 / MinIO | Local filesystem | S3 / MinIO |
+| AI assistant | Anthropic API | Optional | Optional |
 
 ## Quick Start
 
@@ -51,6 +55,20 @@ npm run setup
 npm run dev
 ```
 
+### Connect to your remote KLLAPP server
+
+To use the desktop app with your existing KLLAPP data:
+
+1. Edit `kllapp/.env.local`
+2. Add your database connection:
+   ```env
+   POSTGRES_URL=postgresql://user:password@your-server:5432/kllapp
+   KLLAPP_USER_EMAIL=you@example.com
+   ```
+3. Restart the app
+
+The app connects directly to your PostgreSQL database — same data as the web version.
+
 ### Build for distribution
 
 ```bash
@@ -73,12 +91,12 @@ kllapp-desktop/
 │   ├── database.ts     # PGlite init + migrations
 │   └── preload.ts      # IPC bridge to renderer
 ├── patches/            # Files that replace kllapp source files
-│   ├── db-adapter.ts   # PGlite instead of postgres driver
-│   ├── auth-bypass.ts  # Single-user auto-login
+│   ├── db-adapter.ts   # Hybrid: PGlite or remote PostgreSQL
+│   ├── auth-bypass.ts  # Auto-login (local or by email)
 │   ├── liveblocks-mock.ts  # No-op Liveblocks hooks
 │   ├── providers-patch.tsx # Providers without Liveblocks
-│   ├── s3-local.ts     # Local file storage
-│   └── middleware-patch.ts # No auth middleware
+│   ├── s3-local.ts     # Local file storage (offline mode)
+│   └── middleware-patch.ts # Locale-only middleware
 ├── scripts/
 │   ├── setup.sh        # Clone kllapp + apply patches
 │   └── build-desktop.sh # Build Next.js + Electron
@@ -93,17 +111,21 @@ The `setup.sh` script:
 3. Replaces Liveblocks imports with mock module
 4. Generates Drizzle migrations for PGlite
 
-This approach keeps the desktop version in sync with the web version — just re-run `npm run setup` to get the latest features.
+Re-run `npm run setup` to pull the latest features from the web version.
 
-### Key technology choices
+### Hybrid database adapter
 
-- **PGlite** — PostgreSQL compiled to WebAssembly. Runs the real PostgreSQL engine in a single process, persisting data to a directory. The Drizzle schema is 100% compatible — zero query changes.
-- **Electron** — Provides native window, system tray, auto-updates, and file system access. The Next.js standalone server runs inside the Electron process.
-- **No port exposed** — The Next.js server binds to a dynamic localhost port that's only accessible to the Electron window.
+The `db-adapter.ts` patch automatically selects the right driver:
 
-## Data storage
+```
+POSTGRES_URL set?
+  ├── YES → drizzle-orm/postgres-js (remote PostgreSQL)
+  └── NO  → drizzle-orm/pglite (local embedded database)
+```
 
-All data is stored in your OS user data directory:
+Same Drizzle schema, same queries — zero code changes between modes.
+
+## Data storage (offline mode)
 
 | OS | Location |
 |---|---|
@@ -116,17 +138,11 @@ All data is stored in your OS user data directory:
 
 ## AI Assistant (optional)
 
-The AI assistant (Corinne) works in desktop mode if you provide an Anthropic API key:
+The AI assistant (Corinne) works in both modes if you provide an Anthropic API key:
 
 1. Edit `kllapp/.env.local`
 2. Add: `ANTHROPIC_API_KEY=sk-ant-...`
 3. Restart the app
-
-## Chromebook
-
-Chromebook doesn't support Electron. Use the web version instead:
-- Self-host with Docker: see [oxynum/kllapp](https://github.com/oxynum/kllapp)
-- Or use the PWA from any hosted instance
 
 ## License
 

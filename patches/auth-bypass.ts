@@ -1,9 +1,9 @@
 /**
  * Authentication bypass for KLLAPP Desktop.
  *
- * This file replaces `src/auth.ts` in the kllapp source.
- * Desktop mode is single-user — no OAuth, no magic links, no JWT.
- * The user is automatically "logged in" as the local admin.
+ * Two modes:
+ *   - KLLAPP_USER_EMAIL set → find that user in the database (remote mode)
+ *   - KLLAPP_USER_EMAIL absent → use first user in database (local mode)
  *
  * USAGE: This file is copied over `kllapp/src/auth.ts` by the setup script.
  */
@@ -12,13 +12,13 @@ import { db } from "@/lib/db";
 import { users, organizationMembers } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
-// Minimal session type matching NextAuth's expected shape
 interface DesktopSession {
   user: {
     id: string;
     appUserId: string;
     name: string;
     email: string;
+    image?: string | null;
     currentOrganizationId: string | null;
     orgRole: string | null;
     isOrgOwner: boolean;
@@ -29,12 +29,15 @@ interface DesktopSession {
 }
 
 /**
- * Returns the desktop session — always "authenticated" as the local user.
- * Drop-in replacement for NextAuth's `auth()` function.
+ * Returns the desktop session.
+ * In remote mode, finds user by KLLAPP_USER_EMAIL.
+ * In local mode, returns the first user.
  */
 export async function auth(): Promise<DesktopSession | null> {
   try {
-    const [appUser] = await db
+    const userEmail = process.env.KLLAPP_USER_EMAIL;
+
+    const query = db
       .select({
         id: users.id,
         name: users.name,
@@ -44,10 +47,17 @@ export async function auth(): Promise<DesktopSession | null> {
         locale: users.locale,
         isSuperAdmin: users.isSuperAdmin,
       })
-      .from(users)
-      .limit(1);
+      .from(users);
 
-    if (!appUser) return null;
+    // In remote mode, find the specific user by email
+    const [appUser] = userEmail
+      ? await query.where(eq(users.email, userEmail)).limit(1)
+      : await query.limit(1);
+
+    if (!appUser) {
+      console.error("[KLLAPP Desktop] No user found" + (userEmail ? ` for email: ${userEmail}` : ""));
+      return null;
+    }
 
     let orgRole: string | null = null;
     let isOrgOwner = false;
@@ -89,9 +99,28 @@ export async function auth(): Promise<DesktopSession | null> {
   }
 }
 
-// No-op exports for NextAuth API compatibility
+// API handlers — SessionProvider fetches GET /api/auth/session
 export const handlers = {
-  GET: async () => new Response("Desktop mode", { status: 200 }),
+  GET: async (req: Request) => {
+    const url = new URL(req.url);
+    if (url.pathname.endsWith("/session")) {
+      const session = await auth();
+      return new Response(JSON.stringify(session ?? {}), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (url.pathname.endsWith("/csrf")) {
+      return new Response(JSON.stringify({ csrfToken: "desktop-local" }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (url.pathname.endsWith("/providers")) {
+      return new Response(JSON.stringify({}), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return new Response("Desktop mode", { status: 200 });
+  },
   POST: async () => new Response("Desktop mode", { status: 200 }),
 };
 export async function signIn() { return; }

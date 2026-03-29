@@ -54,17 +54,22 @@ async function createWindow(port: number) {
 
 app.whenReady().then(async () => {
   try {
-    // 1. Initialize PGlite database
-    console.log("[KLLAPP] Initializing database...");
-    await initDatabase();
-    console.log("[KLLAPP] Database ready.");
+    // Set app name (affects userData path)
+    app.setName("KLLAPP");
 
-    // 2. Start Next.js server
+    if (!isDev) {
+      // Production: initialize PGlite database (in dev, use init-db.mjs separately)
+      console.log("[KLLAPP] Initializing database...");
+      await initDatabase();
+      console.log("[KLLAPP] Database ready.");
+    }
+
+    // Start/connect to Next.js server
     console.log("[KLLAPP] Starting Next.js server...");
     const port = await startNextServer();
     console.log(`[KLLAPP] Next.js ready on port ${port}`);
 
-    // 3. Create the main window
+    // Create the main window
     await createWindow(port);
   } catch (error) {
     console.error("[KLLAPP] Fatal startup error:", error);

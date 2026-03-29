@@ -38,7 +38,8 @@ async function runMigrations(client: unknown): Promise<void> {
     const { drizzle } = await import("drizzle-orm/pglite");
     const { migrate } = await import("drizzle-orm/pglite/migrator");
 
-    const db = drizzle(client as ConstructorParameters<typeof import("drizzle-orm/pglite")["drizzle"]>[0]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = drizzle(client as any);
 
     // Migrations are generated from the kllapp schema via drizzle-kit
     const migrationsPath = path.join(
@@ -62,7 +63,8 @@ async function runMigrations(client: unknown): Promise<void> {
  */
 export async function seedDesktopUser(): Promise<void> {
   const { drizzle } = await import("drizzle-orm/pglite");
-  const db = drizzle((globalThis as Record<string, unknown>).__kllapp_pglite as ConstructorParameters<typeof import("drizzle-orm/pglite")["drizzle"]>[0]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = drizzle((globalThis as Record<string, unknown>).__kllapp_pglite as any);
 
   // Check if any user exists
   const result = await db.execute<{ count: string }>(
