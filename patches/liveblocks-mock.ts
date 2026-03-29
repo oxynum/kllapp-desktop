@@ -2,70 +2,61 @@
  * Liveblocks mock for KLLAPP Desktop.
  *
  * In offline single-user mode, there's no real-time collaboration.
- * This module exports mock hooks that return empty/no-op values.
- *
- * The setup script patches imports throughout the codebase to use
- * these mocks instead of the real Liveblocks hooks.
+ * All hooks return safe no-op values.
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Mock LiveMap that stores data in a plain Map
 export class LiveMap<K = string, V = any> extends Map<K, V> {
   toImmutable() {
     return new Map(this);
   }
 }
 
-// Mock hooks — return safe defaults
-export function useOthers() {
+export function useOthers(): any[] {
   return [];
 }
 
-export function useUpdateMyPresence() {
+export function useUpdateMyPresence(): (patch: any) => void {
   return () => {};
 }
 
-export function useSelf() {
+export function useSelf(): any {
   return {
     presence: { name: "Admin", color: "#3B82F6", cursor: null, visibleRegion: null },
     info: { name: "Admin" },
   };
 }
 
-export function useMyPresence() {
+export function useMyPresence(): any {
   return [
     { name: "Admin", color: "#3B82F6", cursor: null, visibleRegion: null },
     () => {},
-  ] as const;
+  ];
 }
 
-export function useStorage<T>(selector: (root: any) => T): T {
-  // Return empty LiveMap for cells storage
+export function useStorage(selector: (root: any) => any): any {
   return selector({ cells: new LiveMap() });
 }
 
-export function useMutation<F extends (...args: any[]) => any>(
-  callback: (context: any, ...args: Parameters<F>) => ReturnType<F>,
-  _deps: unknown[]
-) {
-  return (...args: Parameters<F>): ReturnType<F> => {
+export function useMutation(callback: any, _deps: any[]): any {
+  return (...args: any[]) => {
     return callback({ storage: { get: () => new LiveMap() }, self: useSelf(), setMyPresence: () => {} }, ...args);
   };
 }
 
-export function useRoom() {
+export function useRoom(): any {
   return { id: "desktop-local" };
 }
 
-export function useBroadcastEvent() {
+export function useBroadcastEvent(): any {
   return () => {};
 }
 
-export function useEventListener() {
+export function useEventListener(): void {
   return;
 }
 
-export function useStatus() {
+export function useStatus(): string {
   return "connected";
 }

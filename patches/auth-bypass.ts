@@ -123,5 +123,7 @@ export const handlers = {
   },
   POST: async () => new Response("Desktop mode", { status: 200 }),
 };
-export async function signIn() { return; }
-export async function signOut() { return; }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function signIn(..._args: unknown[]) { return; }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function signOut(..._args: unknown[]) { return; }
