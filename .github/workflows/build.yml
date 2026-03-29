@@ -12,6 +12,7 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-latest
@@ -37,7 +38,12 @@ jobs:
         run: npm ci
 
       - name: Run setup (clone kllapp + apply patches)
-        run: npm run setup
+        shell: bash
+        run: bash scripts/setup.sh
+
+      - name: Initialize PGlite database
+        shell: bash
+        run: node scripts/init-db.mjs
 
       - name: Build Electron
         run: npx tsc -p tsconfig.electron.json
@@ -47,19 +53,21 @@ jobs:
         run: npx next build
 
       - name: Copy static assets
+        shell: bash
         working-directory: kllapp
         run: |
+          mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
 
       - name: Copy migrations
+        shell: bash
         run: cp -r kllapp/drizzle drizzle 2>/dev/null || true
 
       - name: Build installer
         run: npx electron-builder --config electron-builder.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUILD_PLATFORM: ${{ matrix.platform }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -71,6 +79,7 @@ jobs:
             release/*.exe
             release/*.AppImage
             release/*.deb
+          if-no-files-found: warn
 
   release:
     needs: build
@@ -83,10 +92,9 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create GitHub Release
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/**/*
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
