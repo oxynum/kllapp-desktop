@@ -27,11 +27,9 @@ export async function startNextServer(): Promise<number> {
   const port = await getPort({ portRange: [3456, 3500] });
 
   // Path to the standalone Next.js server
+  // Next.js standalone is unpacked outside asar (needs real filesystem for chdir)
   const serverPath = path.join(
-    process.resourcesPath,
-    "app.asar.unpacked",
-    "kllapp",
-    ".next",
+    app.getAppPath().replace("app.asar", "app.asar.unpacked"),
     "standalone",
     "server.js"
   );

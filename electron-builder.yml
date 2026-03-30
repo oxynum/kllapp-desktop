@@ -7,7 +7,8 @@ asarUnpack:
   - "**/*.node"
   - "**/*.dll"
   - "**/node_modules/@electric-sql/pglite/**"
-  - "**/kllapp/.next/standalone/**"
+  - "standalone/**"
+  - "drizzle/**"
 
 directories:
   output: release
@@ -15,18 +16,16 @@ directories:
 
 files:
   - dist-electron/
-  - kllapp/.next/standalone/
-  - kllapp/.next/static/
-  - kllapp/public/
-  - node_modules/
+  - drizzle/
+  - standalone/
   - package.json
 
 mac:
   target:
     - target: dmg
-      arch: [universal]
+      arch: [arm64, x64]
     - target: zip
-      arch: [universal]
+      arch: [arm64, x64]
   category: public.app-category.business
   icon: resources/icon.icns
   hardenedRuntime: true
