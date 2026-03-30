@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain } from "electron";
+import { app, BrowserWindow, shell, ipcMain, session } from "electron";
 import path from "path";
 import fs from "fs";
 import os from "os";
@@ -131,15 +131,24 @@ const REMOTE_JS = `
     btn.appendChild(svg);
     btn.appendChild(document.createTextNode('Go offline'));
     btn.addEventListener('click', function() {
-      window.postMessage({ type: 'kllapp-switch-offline' }, '*');
+      console.log('__kllapp_switch_offline__');
     });
     document.body.appendChild(btn);
 
-    window.addEventListener('message', function(e) {
-      if (e.data && e.data.type === 'kllapp-switch-offline') {
-        console.log('__kllapp_switch_offline__');
+    // Clear session button (appears if error page detected)
+    setTimeout(function() {
+      var errorEl = document.querySelector('[data-next-error-message]') || document.querySelector('.error-page');
+      if (errorEl || document.body.textContent.indexOf('session') > -1 && document.body.textContent.indexOf('erreur') > -1) {
+        var clearBtn = document.createElement('button');
+        clearBtn.id = 'kllapp-clear-session';
+        clearBtn.textContent = 'Clear session';
+        clearBtn.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:100000;padding:8px 14px;background:#ef4444;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:-apple-system,sans-serif;';
+        clearBtn.addEventListener('click', function() {
+          console.log('__kllapp_clear_session__');
+        });
+        document.body.appendChild(clearBtn);
       }
-    });
+    }, 2000);
   })();
 `;
 
@@ -192,7 +201,7 @@ async function createWindow(url: string, isRemote: boolean = false) {
     }
   });
 
-  // Listen for mode switch from injected button (console message bridge)
+  // Listen for injected button actions via console message bridge
   mainWindow.webContents.on("console-message", (_e, _level, message) => {
     if (message === "__kllapp_switch_offline__") {
       console.log("[kllapp] Switching to offline mode...");
@@ -200,6 +209,14 @@ async function createWindow(url: string, isRemote: boolean = false) {
       if (serverReady && localPort > 0) {
         mainWindow?.loadURL(`http://localhost:${localPort}/desktop-setup`);
       }
+    }
+    if (message === "__kllapp_clear_session__") {
+      console.log("[kllapp] Clearing session...");
+      session.defaultSession.clearStorageData().then(() => {
+        session.defaultSession.clearCache().then(() => {
+          mainWindow?.webContents.reload();
+        });
+      });
     }
   });
 
@@ -220,12 +237,18 @@ function injectRemoteUI() {
   mainWindow.webContents.executeJavaScript(REMOTE_JS).catch(() => {});
 }
 
-// IPC handler
+// IPC handlers
 ipcMain.handle("config:switch-offline", async () => {
   deleteConfig();
   if (serverReady && localPort > 0) {
     mainWindow?.loadURL(`http://localhost:${localPort}/desktop-setup`);
   }
+});
+
+ipcMain.handle("session:clear", async () => {
+  await session.defaultSession.clearStorageData();
+  await session.defaultSession.clearCache();
+  mainWindow?.webContents.reload();
 });
 
 app.whenReady().then(async () => {
@@ -303,5 +326,8 @@ app.on("window-all-closed", () => {
 });
 
 app.on("before-quit", async () => {
+  // Kill Next.js server to free the port
+  const { stopNextServer } = await import("./next-server");
+  stopNextServer();
   await closeDatabase();
 });
