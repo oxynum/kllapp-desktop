@@ -19,6 +19,8 @@ export interface DesktopConfig {
 }
 
 function getConfigDir(): string {
+  // Use env var from Electron main process (ensures same path in subprocess)
+  if (process.env.KLLAPP_CONFIG_DIR) return process.env.KLLAPP_CONFIG_DIR;
   if (process.platform === "darwin") {
     return path.join(os.homedir(), "Library", "Application Support", "kllapp");
   } else if (process.platform === "win32") {

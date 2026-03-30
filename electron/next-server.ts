@@ -47,6 +47,8 @@ export async function startNextServer(): Promise<number> {
         KLLAPP_DESKTOP: "true",
         KLLAPP_DATA_DIR: dataDir,
         KLLAPP_PORT: String(port),
+        // Config dir alignment — same path as Electron main process
+        KLLAPP_CONFIG_DIR: process.env.KLLAPP_CONFIG_DIR ?? dataDir,
         // PGlite connection — the DB adapter reads this
         PGLITE_DATA_DIR: path.join(dataDir, "pgdata"),
       },
@@ -74,8 +76,8 @@ export async function startNextServer(): Promise<number> {
       serverProcess = null;
     });
 
-    // Fallback: resolve after timeout (server might not print "Ready")
-    setTimeout(() => resolve(port), 5000);
+    // Fallback: resolve after timeout (first launch can be slow)
+    setTimeout(() => resolve(port), 15000);
   });
 }
 

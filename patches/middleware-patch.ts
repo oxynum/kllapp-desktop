@@ -33,11 +33,12 @@ export default function middleware(req: NextRequest) {
       const fs = require("fs");
       const path = require("path");
       const os = require("os");
-      const configDir = process.platform === "darwin"
-        ? path.join(os.homedir(), "Library", "Application Support", "kllapp")
-        : process.platform === "win32"
-          ? path.join(process.env.APPDATA ?? os.homedir(), "kllapp")
-          : path.join(os.homedir(), ".config", "kllapp");
+      const configDir = process.env.KLLAPP_CONFIG_DIR
+        ?? (process.platform === "darwin"
+          ? path.join(os.homedir(), "Library", "Application Support", "kllapp")
+          : process.platform === "win32"
+            ? path.join(process.env.APPDATA ?? os.homedir(), "kllapp")
+            : path.join(os.homedir(), ".config", "kllapp"));
       const configPath = path.join(configDir, "config.json");
 
       if (!fs.existsSync(configPath)) {
