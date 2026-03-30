@@ -159,16 +159,15 @@ async function createWindow(url: string, isRemote: boolean = false) {
     mainWindow?.focus();
   });
 
-  // External links
+  // In remote mode, allow all navigations (OAuth, redirects, etc.)
+  // In local mode, open external links in system browser
   mainWindow.webContents.setWindowOpenHandler(({ url: linkUrl }) => {
+    if (isRemote) {
+      return { action: "allow" as const };
+    }
     try {
-      const baseHost = new URL(url).host;
       const linkHost = new URL(linkUrl).host;
-      if (linkHost === baseHost || linkHost === "localhost") {
-        return { action: "allow" as const };
-      }
-      // Allow Google OAuth flow
-      if (linkHost.includes("accounts.google.com") || linkHost.includes("google.com")) {
+      if (linkHost === "localhost" || linkHost.includes("127.0.0.1")) {
         return { action: "allow" as const };
       }
     } catch { /* ignore */ }
