@@ -183,12 +183,13 @@ async function createWindow(url: string, isRemote: boolean = false) {
     return { action: "deny" as const };
   });
 
-  // Intercept /desktop-redirect to switch to remote URL
-  mainWindow.webContents.on("did-navigate", (_event, navUrl) => {
-    handleRedirect(navUrl);
-  });
-  mainWindow.webContents.on("will-redirect", (_event, navUrl) => {
-    handleRedirect(navUrl);
+  // On every page load, inject remote UI if we're on a non-localhost page
+  mainWindow.webContents.on("did-finish-load", () => {
+    const currentUrl = mainWindow?.webContents.getURL() ?? "";
+    if (currentUrl && !currentUrl.includes("localhost") && !currentUrl.includes("127.0.0.1")) {
+      console.log(`[kllapp] Injecting remote UI on: ${currentUrl.substring(0, 60)}...`);
+      injectRemoteUI();
+    }
   });
 
   // Listen for mode switch from injected button (console message bridge)
@@ -202,18 +203,7 @@ async function createWindow(url: string, isRemote: boolean = false) {
     }
   });
 
-  // Inject safe header on every page load in remote mode
-  if (isRemote) {
-    mainWindow.webContents.on("did-finish-load", () => {
-      injectRemoteUI();
-    });
-  }
-
   await mainWindow.loadURL(url);
-
-  if (isRemote) {
-    injectRemoteUI();
-  }
 
   if (isDev) {
     mainWindow.webContents.openDevTools({ mode: "detach" });
@@ -222,22 +212,6 @@ async function createWindow(url: string, isRemote: boolean = false) {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
-}
-
-function handleRedirect(navUrl: string) {
-  try {
-    const parsed = new URL(navUrl);
-    if (parsed.pathname === "/desktop-redirect") {
-      const remoteUrl = parsed.searchParams.get("url");
-      if (remoteUrl && mainWindow) {
-        console.log(`[kllapp] Loading remote: ${remoteUrl}`);
-        mainWindow.loadURL(remoteUrl);
-        mainWindow.webContents.on("did-finish-load", () => {
-          injectRemoteUI();
-        });
-      }
-    }
-  } catch { /* ignore */ }
 }
 
 function injectRemoteUI() {

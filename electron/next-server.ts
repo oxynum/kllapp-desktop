@@ -72,12 +72,18 @@ export async function startNextServer(): Promise<number> {
     serverProcess.on("exit", (code) => {
       if (code !== 0 && code !== null) {
         console.error(`[Next.js] Server exited with code ${code}`);
+        reject(new Error(`Next.js server exited with code ${code}`));
       }
       serverProcess = null;
     });
 
     // Fallback: resolve after timeout (first launch can be slow)
-    setTimeout(() => resolve(port), 15000);
+    setTimeout(() => {
+      // Only resolve if server is still running
+      if (serverProcess && !serverProcess.killed) {
+        resolve(port);
+      }
+    }, 15000);
   });
 }
 
